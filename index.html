@@ -3,169 +3,212 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GameHub — Магазин игр</title>
+<title>MEGA GameHub — Магазин игр</title>
 <style>
-  /* Базовые настройки в стиле Steam */
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: Arial, Helvetica, sans-serif;
-    background-color: #1b2838; 
-    color: #c6d4df; 
-    min-height: 100vh;
-    line-height: 1.5;
-  }
+  body { font-family: Arial, Helvetica, sans-serif; background-color: #1b2838; color: #c6d4df; min-height: 100vh; line-height: 1.5; }
+  
+  header { background: #171a21; padding: 15px 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 2px 10px rgba(0,0,0,0.5); position: sticky; top: 0; z-index: 100; }
+  header h1 { font-size: 1.5em; color: #fff; font-weight: 400; letter-spacing: 1px; cursor: pointer; }
+  header h1 span { color: #66c0f4; font-weight: bold; }
+  .nav-btn { color: #66c0f4; text-decoration: none; font-size: 0.9em; display: none; cursor: pointer; background: none; border: none; font-family: inherit; }
+  .nav-btn:hover { text-decoration: underline; }
+  .nav-btn.active { display: flex; align-items: center; gap: 5px; }
 
-  /* Верхняя панель (Header) */
-  header {
-    background: #171a21; 
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  header h1 {
-    font-size: 1.5em;
-    color: #fff;
-    font-weight: 400;
-    letter-spacing: 1px;
-  }
-  header h1 span {
-    color: #66c0f4; 
-    font-weight: bold;
-  }
+  .container { max-width: 1000px; margin: 30px auto; padding: 0 20px; }
+  
+  /* === ХАБ === */
+  .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+  .game-card { background: #16202d; border-radius: 4px; overflow: hidden; transition: transform 0.2s, background 0.2s; text-decoration: none; color: inherit; display: flex; flex-direction: column; cursor: pointer; }
+  .game-card:hover { transform: translateY(-5px); background: #2a475e; }
+  .card-image { height: 140px; background: linear-gradient(135deg, #4c1d95, #831843); display: flex; align-items: center; justify-content: center; font-size: 4em; position: relative; }
+  .card-content { padding: 15px; display: flex; flex-direction: column; flex: 1; }
+  .card-title { font-size: 1.2em; color: #fff; margin-bottom: 5px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .beta-badge { background-color: #ffcc00; color: #000; font-size: 0.7em; font-weight: bold; padding: 2px 6px; border-radius: 3px; text-transform: uppercase; }
+  .version-badge { background-color: #66c0f4; color: #000; font-size: 0.7em; font-weight: bold; padding: 2px 6px; border-radius: 3px; }
+  .card-meta { font-size: 0.85em; color: #8f98a0; margin-bottom: 10px; }
+  .card-author { font-size: 0.85em; color: #66c0f4; margin-bottom: 15px; }
+  .card-price { margin-top: auto; font-size: 1.1em; color: #beee11; font-weight: bold; }
 
-  /* Основной контейнер */
-  .container {
-    max-width: 1000px;
-    margin: 30px auto;
-    padding: 0 20px;
-  }
+  /* === СТРАНИЦА ИГРЫ === */
+  .game-page { background: #1b2838; border-radius: 4px; overflow: hidden; display: flex; flex-direction: column; }
+  .game-title-area { background: linear-gradient(135deg, #2a475e 0%, #1b2838 100%); padding: 30px 25px; border-bottom: 1px solid #2a475e; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+  .game-title-area h2 { font-size: 2.2em; color: #fff; font-weight: 400; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); margin: 0; }
+  .game-content { display: flex; gap: 25px; padding: 25px; flex-wrap: wrap; }
+  .game-cover { flex: 0 0 350px; height: 200px; display: flex; align-items: center; justify-content: center; font-size: 5em; border-radius: 4px; box-shadow: 0 0 10px rgba(0,0,0,0.3); position: relative; }
+  .game-cover::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,0,0,0.15) 10px, rgba(0,0,0,0.15) 20px); border-radius: 4px; }
+  .game-details { flex: 1; min-width: 300px; display: flex; flex-direction: column; }
+  .game-meta-top { font-size: 0.9em; color: #8f98a0; margin-bottom: 15px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+  .game-author { color: #66c0f4; font-weight: bold; }
+  .early-access { background-color: #4c6b22; color: #d2efa9; font-size: 0.85em; font-weight: bold; padding: 3px 8px; border-radius: 3px; display: inline-block; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .game-description { font-size: 1em; color: #acb2b8; margin-bottom: 20px; line-height: 1.6; }
+  .download-btn { display: inline-block; padding: 12px 24px; background: linear-gradient(90deg, #4c6b22 0%, #6b8e2e 100%); color: #d2efa9; text-align: center; text-decoration: none; border-radius: 3px; font-size: 1.1em; font-weight: bold; transition: all 0.2s ease; border: none; cursor: pointer; text-shadow: 1px 1px 2px rgba(0,0,0,0.5); box-shadow: 0 2px 4px rgba(0,0,0,0.2); align-self: flex-start; margin-top: auto; }
+  .download-btn:hover { background: linear-gradient(90deg, #5b8029 0%, #7ea536 100%); color: #fff; box-shadow: 0 0 10px rgba(107, 142, 46, 0.5); }
+  .download-btn:active { transform: translateY(1px); }
+  .system-req { background: #16202d; padding: 15px 25px; border-top: 1px solid #2a475e; font-size: 0.9em; color: #8f98a0; }
+  .system-req strong { color: #c6d4df; }
 
-  /* Сетка для игр */
-  .game-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 20px;
-    margin-top: 20px;
-  }
-
-  /* Карточка игры в хабе */
-  .game-card {
-    background: #16202d;
-    border-radius: 4px;
-    overflow: hidden;
-    transition: transform 0.2s, background 0.2s;
-    text-decoration: none;
-    color: inherit;
-    display: flex;
-    flex-direction: column;
-  }
-  .game-card:hover {
-    transform: translateY(-5px);
-    background: #2a475e;
-  }
-
-  .card-image {
-    height: 140px;
-    background: linear-gradient(135deg, #4c1d95, #831843);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4em;
-    position: relative;
-  }
-
-  .card-content {
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-  }
-
-  .card-title {
-    font-size: 1.2em;
-    color: #fff;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
-  }
-
-  /* Жёлтая плашка БЕТА */
-  .beta-badge {
-    background-color: #ffcc00;
-    color: #000;
-    font-size: 0.7em;
-    font-weight: bold;
-    padding: 2px 6px;
-    border-radius: 3px;
-    text-transform: uppercase;
-  }
-
-  .card-meta {
-    font-size: 0.85em;
-    color: #8f98a0;
-    margin-bottom: 15px;
-  }
-
-  .card-price {
-    margin-top: auto;
-    font-size: 1.1em;
-    color: #beee11; /* Зелёный цвет цены Steam */
-    font-weight: bold;
-  }
-
-  footer {
-    text-align: center;
-    padding: 25px;
-    color: #56707f;
-    font-size: 0.85em;
-    margin-top: 40px;
-    border-top: 1px solid #171a21;
-  }
+  .hidden { display: none !important; }
+  footer { text-align: center; padding: 25px; color: #56707f; font-size: 0.85em; margin-top: 40px; border-top: 1px solid #171a21; }
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🎮 Game<span>Hub</span></h1>
-  <div style="font-size: 0.9em; color: #8f98a0;">Магазин игр</div>
+  <h1 onclick="showHub()">🎮 MEGA Game<span>Hub</span></h1>
+  <button class="nav-btn" id="backBtn" onclick="showHub()">← Вернуться в магазин</button>
 </header>
 
 <main class="container">
-  <h2 style="color: #fff; font-weight: 400; margin-bottom: 10px;">Все игры</h2>
   
-  <!-- Сетка с играми -->
-  <div class="game-grid">
-    
-    <!-- Карточка первой игры. Ссылка ведёт на game.html -->
-    <a href="game.html" class="game-card">
-      <div class="card-image">🌑</div>
-      <div class="card-content">
-        <div class="card-title">
-          Лунтик X: Солянка ужаса глава 4
-          <span class="beta-badge">БЕТА</span>
+  <!-- ================= ХАБ ================= -->
+  <div id="hubView">
+    <h2 style="color: #fff; font-weight: 400; margin-bottom: 10px;">Все игры</h2>
+    <div class="game-grid">
+      
+      <!-- Карточка: Лунтик -->
+      <div class="game-card" onclick="showGame('luntik')">
+        <div class="card-image">🌑</div>
+        <div class="card-content">
+          <div class="card-title">
+            Лунтик X: Солянка ужаса глава 4
+            <span class="beta-badge">БЕТА</span>
+          </div>
+          <div class="card-meta">Хоррор / Инди · В раннем доступе</div>
+          <div class="card-author">Автор: M3nree</div>
+          <div class="card-price">Бесплатно</div>
         </div>
-        <div class="card-meta">
-          Хоррор / Инди · В раннем доступе
-        </div>
-        <div class="card-price">Бесплатно</div>
       </div>
-    </a>
-    
-    <!-- Сюда потом сможешь добавлять новые игры по аналогии -->
-    
+
+      <!-- Карточка: Geometry Dash -->
+      <div class="game-card" onclick="showGame('gd')">
+        <div class="card-image" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">🔺</div>
+        <div class="card-content">
+          <div class="card-title">
+            Geometry Dash
+            <span class="version-badge">v2.209</span>
+          </div>
+          <div class="card-meta">Аркада / Платформер · 2013</div>
+          <div class="card-author">Автор: RobTop</div>
+          <div class="card-price">Бесплатно</div>
+        </div>
+      </div>
+
+    </div>
   </div>
+
+  <!-- ================= ИГРА: ЛУНТИК ================= -->
+  <div id="luntikView" class="hidden">
+    <article class="game-page">
+      <div class="game-title-area">
+        <h2>Лунтик X: Солянка ужаса глава 4</h2>
+        <span class="beta-badge">БЕТА</span>
+      </div>
+      <div class="game-content">
+        <div class="game-cover" style="background: linear-gradient(135deg, #4c1d95, #831843);">🌑</div>
+        <div class="game-details">
+          <div class="game-meta-top">
+            <span>📅 Дата выхода: 2026</span>
+            <span>🎮 Жанр: Хоррор / Инди</span>
+            <span>🖥 Платформа: Windows</span>
+            <span class="game-author">👤 Автор: M3nree</span>
+          </div>
+          <div class="early-access">В раннем доступе</div>
+          <p class="game-description">
+            Погрузитесь в мрачную интерпретацию знакомой истории. Глава 4 — это продолжение кошмара, 
+            которое раскроет тёмные тайны. Странные события, жуткая атмосфера и... солянка? 
+            Узнайте, что скрывается за фасадом. <br><br>
+            <em>Эта игра находится в разработке. Вы можете играть в неё уже сейчас, но она может изменяться в будущем.</em>
+          </p>
+          <a href="https://drive.google.com/file/d/1dDGap0VyJeY98DshABmd0uI0hmHvQmk2/view?usp=sharing" class="download-btn" target="_blank">
+            ⬇ Скачать (141 МБ)
+          </a>
+        </div>
+      </div>
+      <div class="system-req">
+        <strong>Системные требования:</strong> Windows 10/11 · Место на диске: 141 МБ
+      </div>
+    </article>
+  </div>
+
+  <!-- ================= ИГРА: GEOMETRY DASH ================= -->
+  <div id="gdView" class="hidden">
+    <article class="game-page">
+      <div class="game-title-area">
+        <h2>Geometry Dash</h2>
+        <span class="version-badge" style="font-size: 0.9em; padding: 4px 10px;">v2.209</span>
+      </div>
+      <div class="game-content">
+        <div class="game-cover" style="background: linear-gradient(135deg, #1e3c72, #2a5298);">🔺</div>
+        <div class="game-details">
+          <div class="game-meta-top">
+            <span>📅 Дата выхода: 2013</span>
+            <span>🎮 Жанр: Аркада / Платформер</span>
+            <span>🖥 Платформа: Windows</span>
+            <span class="game-author">👤 Автор: RobTop</span>
+          </div>
+          <p class="game-description">
+            Geometry Dash — это ритм-платформер, в котором вам предстоит прыгать и летать через опасные 
+            препятствия в такт музыке. Один неверный шаг — и вы начинаете уровень заново. 
+            Более 20 миллионов игроков по всему миру уже попробовали свои силы в этой хардкорной аркаде.
+          </p>
+          <a href="https://drive.google.com/file/d/1SDmUg6vo58yLvYz3iNnxTXYzIefCk2ZW/view?usp=drive_link" class="download-btn" target="_blank">
+            ⬇ Скачать (RAR архив)
+          </a>
+        </div>
+      </div>
+      <div class="system-req">
+        <strong>Системные требования:</strong> Windows 7/10/11 · Место на диске: ~50 МБ
+      </div>
+    </article>
+  </div>
+
 </main>
 
 <footer>
-  © 2026 GameHub · Все файлы предоставлены авторами. Скачивайте на свой страх и риск.
+  © 2026 MEGA GameHub · Все файлы предоставлены авторами. Скачивайте на свой страх и риск.
 </footer>
+
+<script>
+  // Получаем элементы
+  const hubView = document.getElementById('hubView');
+  const luntikView = document.getElementById('luntikView');
+  const gdView = document.getElementById('gdView');
+  const backBtn = document.getElementById('backBtn');
+
+  // Функция переключения на игру
+  function showGame(gameId) {
+    // Скрываем всё
+    hubView.classList.add('hidden');
+    luntikView.classList.add('hidden');
+    gdView.classList.add('hidden');
+    
+    // Показываем нужную игру
+    if (gameId === 'luntik') luntikView.classList.remove('hidden');
+    if (gameId === 'gd') gdView.classList.remove('hidden');
+    
+    // Показываем кнопку "Назад"
+    backBtn.classList.add('active');
+    
+    // Прокрутка вверх при переходе
+    window.scrollTo(0, 0);
+  }
+
+  // Функция возврата в хаб
+  function showHub() {
+    // Скрываем все игры
+    luntikView.classList.add('hidden');
+    gdView.classList.add('hidden');
+    
+    // Показываем хаб
+    hubView.classList.remove('hidden');
+    
+    // Прячем кнопку "Назад"
+    backBtn.classList.remove('active');
+    
+    window.scrollTo(0, 0);
+  }
+</script>
 
 </body>
 </html>
